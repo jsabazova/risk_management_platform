@@ -2,6 +2,9 @@
 
 This is a simple Flask app that calculates the Value at Risk (VaR) for a portfolio of stocks. You can input your stocks and their weights, and it will give you an idea of how much you might lose on a bad day. There are three ways to calculate VaR: Historical Method, Variance-Covariance Method, and Monte Carlo Simulation.
 
+<img width="669" alt="image" src="https://github.com/user-attachments/assets/912aafbf-4172-4560-b215-5f9c5cca65ac">
+
+
 ### **Features**
 - **Calculate VaR**: Get the potential loss amount using three different methods.
 - **Input Stocks and Weights**: Just enter the stock tickers and how much of each you have
