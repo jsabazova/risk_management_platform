@@ -2,21 +2,44 @@ from flask import Flask, render_template, request
 import pandas as pd
 import numpy as np
 import yfinance as yf
+from scipy.stats import norm
 
 app = Flask(__name__)
 
 def calculate_historical_var(returns, confidence_level):
+    # edge case - empty values 
+    if returns.size == 0:
+        return None
+    if confidence_level == 1.0:
+        return np.max(returns)
+    if confidence_level == 0.0:
+        return np.min(returns)
     var = np.percentile(returns, (1 - confidence_level) * 100)
     return var
 
-def calculate_variance_covariance_var(returns, confidence_level):
+def calculate_variance_covariance_var(returns, confidence_level): #normal distribution
+    if returns.size == 0:
+        return None
+    # edge cases: extreme confidence levels (like 0% and 100%) 
+    # previously z_score was returning -inf when the confidence level is 100%
+    if confidence_level == 1.0:
+        return np.max(returns)
+    if confidence_level == 0.0:
+        return np.min(returns)
+    
     mean = returns.mean()
     std_dev = returns.std()
-    z_score = np.abs(np.percentile(np.random.randn(10000), (1 - confidence_level) * 100))
+    z_score = norm.ppf(1 - confidence_level) # formular for left tail (loss threshold) of the distribution.
     var = mean - z_score * std_dev
     return var
 
 def calculate_monte_carlo_var(returns, confidence_level, num_simulations=10000):
+    if returns.size == 0:
+        return None
+    if confidence_level == 1.0:
+        return np.max(returns)
+    if confidence_level == 0.0:
+        return np.min(returns)
     mean = returns.mean()
     std_dev = returns.std()
     simulated_returns = np.random.normal(mean, std_dev, num_simulations)
@@ -54,7 +77,7 @@ def index():
             if method == 'historical':
                 var = calculate_historical_var(portfolio_returns, confidence_level)
             elif method == 'var_cov':
-                var = calculate_var_cov_var(portfolio_returns, confidence_level)
+                var = calculate_variance_covariance_var(portfolio_returns, confidence_level)
             elif method == 'monte_carlo':
                 var = calculate_monte_carlo_var(portfolio_returns, confidence_level)
 
