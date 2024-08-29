@@ -3,8 +3,12 @@ import pandas as pd
 import numpy as np
 import yfinance as yf
 from scipy.stats import norm
+##----
+import matplotlib.pyplot as plt
+
 
 app = Flask(__name__)
+
 
 def calculate_historical_var(returns, confidence_level):
     # edge case - empty values 
@@ -58,7 +62,6 @@ def index():
         method = request.form['method']
 
         try:
-            # Fetch historical data
             data = yf.download(tickers, start=start_date)['Adj Close']
 
             if data.empty:
@@ -73,13 +76,15 @@ def index():
 
             portfolio_returns = returns.dot(weights)
 
-            # Calculate VaR based on selected method
             if method == 'historical':
                 var = calculate_historical_var(portfolio_returns, confidence_level)
+                plot_historical_var(portfolio_returns, var)
             elif method == 'var_cov':
                 var = calculate_variance_covariance_var(portfolio_returns, confidence_level)
+                plot_var_covariance(portfolio_returns.mean(), portfolio_returns.std(), var)
             elif method == 'monte_carlo':
                 var = calculate_monte_carlo_var(portfolio_returns, confidence_level)
+                plot_monte_carlo(np.random.normal(portfolio_returns.mean(), portfolio_returns.std(), 10000), var)
 
             return render_template('index.html', var=var, tickers=tickers, weights=weights, method=method)
 
@@ -88,5 +93,37 @@ def index():
 
     return render_template('index.html', error=error)
 
+
+### plotting the graphs
+def plot_historical_var(losses, var_threshold):
+    plt.figure(figsize=(10, 5))
+    plt.plot(losses, label="Historical Losses")
+    plt.axhline(y=var_threshold, color='r', linestyle='--', label="VaR Threshold")
+    plt.legend()
+    plt.title("Historical Losses vs VaR Threshold")
+    plt.xlabel("Time")
+    plt.ylabel("Losses")
+    plt.savefig('static/historical_var.png')
+    plt.close()
+
+def plot_var_covariance(mean, std_dev, var_threshold):
+    x = np.linspace(mean - 3*std_dev, mean + 3*std_dev, 100)
+    plt.plot(x, 1/(std_dev * np.sqrt(2 * np.pi)) * np.exp(- (x - mean)**2 / (2 * std_dev**2) ))
+    plt.axvline(x=var_threshold, color='r', linestyle='--', label="VaR")
+    plt.title("Normal Distribution with VaR")
+    plt.savefig('static/var_covariance.png')
+    plt.close()
+
+def plot_monte_carlo(simulated_returns, var_threshold):
+    plt.hist(simulated_returns, bins=50, alpha=0.7)
+    plt.axvline(x=var_threshold, color='r', linestyle='--', label="VaR Threshold")
+    plt.title("Monte Carlo Simulation of Portfolio Returns")
+    plt.savefig('static/monte_carlo.png')
+    plt.close()
+
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+    

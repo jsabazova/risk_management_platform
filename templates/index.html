@@ -33,11 +33,17 @@
         </form>
 
         {% if var %}
-        <h2>Value at Risk (VaR): {{ var }}</h2>
-        <p>Portfolio Tickers: {{ tickers }}</p>
-        <p>Portfolio Weights: {{ weights }}</p>
-        <p>Method Used: {{ method }}</p>
+            <h2>Value at Risk (VaR): {{ var }}</h2>
+            <h3>Visualizations:</h3>
+            {% if method == 'historical' %}
+                <img src="{{ url_for('static', filename='historical_var.png') }}" alt="Historical VaR">
+            {% elif method == 'var_cov' %}
+                <img src="{{ url_for('static', filename='var_covariance.png') }}" alt="Variance-Covariance VaR">
+            {% elif method == 'monte_carlo' %}
+                <img src="{{ url_for('static', filename='monte_carlo.png') }}" alt="Monte Carlo VaR">
+            {% endif %}
         {% endif %}
+
     </div>
 </body>
 </html>
