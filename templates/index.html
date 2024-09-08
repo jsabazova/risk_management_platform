@@ -22,28 +22,41 @@
             <label for="start_date">Start Date (YYYY-MM-DD):</label>
             <input type="text" id="start_date" name="start_date" required>
 
-            <label for="method">Choose VaR Calculation Method:</label>
-            <select id="method" name="method">
-                <option value="historical">Historical Method</option>
-                <option value="variance_covariance">Variance-Covariance Method</option>
-                <option value="monte_carlo">Monte Carlo Simulation</option>
-            </select>
+            
+        <label for="method">Choose Risk Calculation Method:</label>
+        <select id="method" name="method">
+            <option value="historical">Historical VaR</option>
+            <option value="variance_covariance">Variance-Covariance VaR</option>
+            <option value="monte_carlo">Monte Carlo Simulation VaR</option>
+            <option value="cvar">CVaR (Conditional VaR)</option>
+        </select>
 
-            <button type="submit">Calculate VaR</button>
-        </form>
+        <button type="submit">Calculate VaR</button>
+    </form>
 
-        {% if var %}
-            <h2>Value at Risk (VaR): {{ var }}</h2>
+        <div class="results">
+            {% if var %}
+                <h2>Value at Risk (VaR): {{ var }}</h2>
+            {% endif %}
+
+            {% if cvar %}
+                <h2>Conditional Value at Risk (CVaR): {{ cvar }}</h2>
+            {% endif %}
+    
+        
             <h3>Visualizations:</h3>
             {% if method == 'historical' %}
-                <img src="{{ url_for('static', filename='historical_var.png') }}" alt="Historical VaR">
+                <img src="{{ url_for('static', filename='historical_var.png') }}?{{ random() }}" alt="Historical VaR">
             {% elif method == 'var_cov' %}
-                <img src="{{ url_for('static', filename='var_covariance.png') }}" alt="Variance-Covariance VaR">
+                <img src="{{ url_for('static', filename='var_covariance.png') }}?{{ random() }}" alt="Variance-Covariance VaR">
             {% elif method == 'monte_carlo' %}
-                <img src="{{ url_for('static', filename='monte_carlo.png') }}" alt="Monte Carlo VaR">
+                <img src="{{ url_for('static', filename='monte_carlo.png') }}?{{ random() }}" alt="Monte Carlo VaR">
+            {% elif method == 'cvar' %}
+                <img src="{{ url_for('static', filename='historical_var.png') }}?{{ random() }}" alt="CVaR Visualization">
             {% endif %}
-        {% endif %}
 
-    </div>
+        </div>
+        
+    
 </body>
 </html>

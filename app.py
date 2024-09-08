@@ -50,9 +50,17 @@ def calculate_monte_carlo_var(returns, confidence_level, num_simulations=10000):
     var = np.percentile(simulated_returns, (1 - confidence_level) * 100)
     return var
 
+def calculate_cvar(returns, var_threshold):
+    losses_beyond_var = returns[returns <= var_threshold]
+    if losses_beyond_var.size == 0:
+        return None
+    cvar = losses_beyond_var.mean()
+    return cvar
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     var = None
+    cvar = None  # To store the CVaR value
     error = None
     if request.method == 'POST':
         tickers = request.form['tickers'].split(',')
@@ -60,6 +68,15 @@ def index():
         confidence_level = float(request.form['confidence_level'])
         start_date = request.form['start_date']
         method = request.form['method']
+
+        # Validation for tickers and weights
+        if len(tickers) != len(weights):
+            error = "The number of tickers must match the number of weights."
+            return render_template('index.html', error=error)
+
+        if sum(weights) != 1.0:
+            error = "The weights must sum up to 1."
+            return render_template('index.html', error=error)
 
         try:
             data = yf.download(tickers, start=start_date)['Adj Close']
@@ -75,23 +92,37 @@ def index():
                 return render_template('index.html', error=error)
 
             portfolio_returns = returns.dot(weights)
+            method = request.form['method']
+            print(f"Method received: {method}") 
 
             if method == 'historical':
+                print("Generating historical VaR plot")
                 var = calculate_historical_var(portfolio_returns, confidence_level)
                 plot_historical_var(portfolio_returns, var)
-            elif method == 'var_cov':
+                cvar = calculate_cvar(portfolio_returns, var)
+    
+            elif method == 'variance_covariance':
+                print("Generating variance-covariance VaR plot")
                 var = calculate_variance_covariance_var(portfolio_returns, confidence_level)
                 plot_var_covariance(portfolio_returns.mean(), portfolio_returns.std(), var)
+                cvar = calculate_cvar(portfolio_returns, var)
+    
             elif method == 'monte_carlo':
+                print("Generating Monte Carlo VaR plot")
                 var = calculate_monte_carlo_var(portfolio_returns, confidence_level)
                 plot_monte_carlo(np.random.normal(portfolio_returns.mean(), portfolio_returns.std(), 10000), var)
+                cvar = calculate_cvar(np.random.normal(portfolio_returns.mean(), portfolio_returns.std(), 10000), var)
 
-            return render_template('index.html', var=var, tickers=tickers, weights=weights, method=method)
+
+
+            return render_template('index.html', var=var, cvar=cvar, tickers=tickers, weights=weights, method=method)
 
         except Exception as e:
             error = str(e)
 
     return render_template('index.html', error=error)
+
+
 
 
 ### plotting the graphs
