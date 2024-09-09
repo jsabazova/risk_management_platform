@@ -3,60 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Risk Management Platform</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Risk Management Platform</title>
 </head>
 <body>
     <div class="container">
-        <h1>Risk Management Platform</h1>
-        <form method="post">
+        <h1 class="text-center">Risk Management Platform</h1>
+
+        <form method="post" class="form-group">
             <label for="tickers">Tickers (comma-separated):</label>
-            <input type="text" id="tickers" name="tickers" required>
-            
+            <input type="text" id="tickers" name="tickers" class="form-control" required>
+
             <label for="weights">Weights (comma-separated):</label>
-            <input type="text" id="weights" name="weights" required>
-            
+            <input type="text" id="weights" name="weights" class="form-control" required>
+
             <label for="confidence_level">Confidence Level (e.g., 0.95 for 95%):</label>
-            <input type="text" id="confidence_level" name="confidence_level" required>
-            
+            <input type="text" id="confidence_level" name="confidence_level" class="form-control" required>
+
             <label for="start_date">Start Date (YYYY-MM-DD):</label>
-            <input type="text" id="start_date" name="start_date" required>
+            <input type="text" id="start_date" name="start_date" class="form-control" required>
 
-            
-        <label for="method">Choose Risk Calculation Method:</label>
-        <select id="method" name="method">
-            <option value="historical">Historical VaR</option>
-            <option value="variance_covariance">Variance-Covariance VaR</option>
-            <option value="monte_carlo">Monte Carlo Simulation VaR</option>
-            <option value="cvar">CVaR (Conditional VaR)</option>
-        </select>
+            <label for="method">Choose Risk Calculation Method:</label>
+            <select id="method" name="method" class="form-control">
+                <option value="historical">Historical VaR</option>
+                <option value="variance_covariance">Variance-Covariance VaR</option>
+                <option value="monte_carlo">Monte Carlo Simulation VaR</option>
+            </select>
 
-        <button type="submit">Calculate VaR</button>
-    </form>
+            <button type="submit" class="btn btn-primary btn-block mt-3">Calculate VaR</button>
+        </form>
 
         <div class="results">
             {% if var %}
-                <h2>Value at Risk (VaR): {{ var }}</h2>
+                <h2 class="text-center">Value at Risk (VaR): {{ var }}</h2>
             {% endif %}
 
             {% if cvar %}
-                <h2>Conditional Value at Risk (CVaR): {{ cvar }}</h2>
+                <h2 class="text-center">Conditional Value at Risk (CVaR): {{ cvar }}</h2>
             {% endif %}
-    
         
-            <h3>Visualizations:</h3>
-            {% if method == 'historical' %}
-                <img src="{{ url_for('static', filename='historical_var.png') }}?{{ random() }}" alt="Historical VaR">
-            {% elif method == 'var_cov' %}
-                <img src="{{ url_for('static', filename='var_covariance.png') }}?{{ random() }}" alt="Variance-Covariance VaR">
-            {% elif method == 'monte_carlo' %}
-                <img src="{{ url_for('static', filename='monte_carlo.png') }}?{{ random() }}" alt="Monte Carlo VaR">
-            {% elif method == 'cvar' %}
-                <img src="{{ url_for('static', filename='historical_var.png') }}?{{ random() }}" alt="CVaR Visualization">
-            {% endif %}
-
+            <div class="visualizations">
+                <h3>Visualizations:</h3>
+                {% if method == 'historical' %}
+                     <img src="{{ url_for('static', filename='historical_var.png') }}?v={{ time.time() }}" alt="Historical VaR Plot">
+                {% elif method == 'monte_carlo' %}
+                    <img src="{{ url_for('static', filename='monte_carlo.png') }}?v={{ time.time() }}" alt="Monte Carlo Simulation Plot">
+                {% elif method == 'variance_covariance' %}
+                    <img src="{{ url_for('static', filename='var_covariance.png') }}?v={{ time.time() }}" alt="Variance-Covariance VaR Plot">
+                {% endif %}
+            </div>
         </div>
-        
-    
+    </div>
 </body>
 </html>
