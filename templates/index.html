@@ -52,6 +52,26 @@
                 {% elif method == 'variance_covariance' %}
                     <img src="{{ url_for('static', filename='var_covariance.png') }}?v={{ time.time() }}" alt="Variance-Covariance VaR Plot">
                 {% endif %}
+
+                <!-- Add explanation for the user -->
+        <div class="explanation" style="margin-top: 20px;">
+            <h4>What the Output Means:</h4>
+            <p>
+                The **Value at Risk (VaR)** is the maximum expected loss over a specified time period at the given confidence level. 
+                For example, a VaR of -2% at a 95% confidence level means that there is a 95% chance that your portfolio's loss will not exceed 2% over the given period.
+            </p>
+            <p>
+                The **Conditional Value at Risk (CVaR)**, also known as the expected shortfall, provides the average loss in cases where the loss exceeds the VaR threshold. 
+                This helps to better understand the potential losses in extreme scenarios.
+            </p>
+            <h4>Understanding the Plot:</h4>
+            <p>
+                The **X-axis** of the plot represents the date, showing the time period during which the portfolio returns were observed.
+                The **Y-axis** shows the portfolio's percentage return. A positive return indicates a gain, while a negative return indicates a loss.
+            </p>
+            <p>
+                The red dashed line represents the **VaR threshold**. Any point below this line indicates a loss that exceeds the calculated Value at Risk.
+            </p>
             </div>
         </div>
     </div>

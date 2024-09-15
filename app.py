@@ -122,32 +122,38 @@ def index():
             if method == 'historical':
                 print("Generating historical VaR plot")
                 var = calculate_historical_var(portfolio_returns, confidence_level)
+                var = round(var,4)
                 try:
                     plot_historical_var(portfolio_returns, var)
                     print("Historical VaR plot generated and saved")
                 except Exception as e:
                     print(f"Error while generating Historical VaR plot: {e}")
                 cvar = calculate_cvar(portfolio_returns, var)
+                cvar = round(cvar, 4) 
     
             elif method == 'variance_covariance':
                 print("Generating variance-covariance VaR plot")
                 var = calculate_variance_covariance_var(portfolio_returns, confidence_level)
+                var = round(var,4)
                 try:
                     plot_var_covariance(portfolio_returns.mean(), portfolio_returns.std(), var)
                     print("Variance-Covariance VaR plot generated and saved")
                 except Exception as e:
                     print(f"Error while generating Variance-Covariance VaR plot: {e}")
                 cvar = calculate_cvar(portfolio_returns, var)
+                cvar = round(cvar, 4) 
     
             elif method == 'monte_carlo':
                 print("Generating Monte Carlo VaR plot")
                 var = calculate_monte_carlo_var(portfolio_returns, confidence_level)
+                var = round(var,4)
                 try:
                     plot_monte_carlo(np.random.normal(portfolio_returns.mean(), portfolio_returns.std(), 10000), var)
                     print("Monte Carlo VaR plot generated and saved")
                 except Exception as e:
                     print(f"Error while generating Monte Carlo VaR plot: {e}")
                 cvar = calculate_cvar(np.random.normal(portfolio_returns.mean(), portfolio_returns.std(), 10000), var)
+                cvar = round(cvar, 4) 
 
             print(f"VaR: {var}, CVaR: {cvar}")
             return render_template('index.html', var=var, cvar=cvar, tickers=tickers, weights=weights, method=method, time=time)
