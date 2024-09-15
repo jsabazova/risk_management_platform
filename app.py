@@ -192,3 +192,7 @@ def plot_monte_carlo(simulated_returns, var_threshold):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+## need to write out what the output means, include the x and y axis varibale names
