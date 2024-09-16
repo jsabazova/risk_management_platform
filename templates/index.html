@@ -3,41 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Risk Management Platform</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Risk Management Platform</title>
 </head>
 <body>
     <div class="container">
-        <h1>Risk Management Platform</h1>
-        <form method="post">
-            <label for="tickers">Tickers (comma-separated):</label>
-            <input type="text" id="tickers" name="tickers" required>
-            
-            <label for="weights">Weights (comma-separated):</label>
-            <input type="text" id="weights" name="weights" required>
-            
-            <label for="confidence_level">Confidence Level (e.g., 0.95 for 95%):</label>
-            <input type="text" id="confidence_level" name="confidence_level" required>
-            
-            <label for="start_date">Start Date (YYYY-MM-DD):</label>
-            <input type="text" id="start_date" name="start_date" required>
+        <h1 class="text-center">Risk Management Platform</h1>
 
-            <label for="method">Choose VaR Calculation Method:</label>
-            <select id="method" name="method">
-                <option value="historical">Historical Method</option>
-                <option value="variance_covariance">Variance-Covariance Method</option>
-                <option value="monte_carlo">Monte Carlo Simulation</option>
+        <form method="post" class="form-group">
+            <label for="tickers">Tickers (comma-separated):</label>
+            <input type="text" id="tickers" name="tickers" class="form-control" required>
+
+            <label for="weights">Weights (comma-separated):</label>
+            <input type="text" id="weights" name="weights" class="form-control" required>
+
+            <label for="confidence_level">Confidence Level (e.g., 0.95 for 95%):</label>
+            <input type="text" id="confidence_level" name="confidence_level" class="form-control" required>
+
+            <label for="start_date">Start Date (YYYY-MM-DD):</label>
+            <input type="text" id="start_date" name="start_date" class="form-control" required>
+
+            <label for="method">Choose Risk Calculation Method:</label>
+            <select id="method" name="method" class="form-control">
+                <option value="historical">Historical VaR</option>
+                <option value="variance_covariance">Variance-Covariance VaR</option>
+                <option value="monte_carlo">Monte Carlo Simulation VaR</option>
             </select>
 
-            <button type="submit">Calculate VaR</button>
+            <button type="submit" class="btn btn-primary btn-block mt-3">Calculate VaR</button>
         </form>
 
-        {% if var %}
-        <h2>Value at Risk (VaR): {{ var }}</h2>
-        <p>Portfolio Tickers: {{ tickers }}</p>
-        <p>Portfolio Weights: {{ weights }}</p>
-        <p>Method Used: {{ method }}</p>
-        {% endif %}
+        <div class="results">
+            {% if var %}
+                <h2 class="text-center">Value at Risk (VaR): {{ var }}</h2>
+            {% endif %}
+
+            {% if cvar %}
+                <h2 class="text-center">Conditional Value at Risk (CVaR): {{ cvar }}</h2>
+            {% endif %}
+        
+            <div class="visualizations">
+                <h3>Visualizations:</h3>
+                {% if method == 'historical' %}
+                     <img src="{{ url_for('static', filename='historical_var.png') }}?v={{ time.time() }}" alt="Historical VaR Plot">
+                {% elif method == 'monte_carlo' %}
+                    <img src="{{ url_for('static', filename='monte_carlo.png') }}?v={{ time.time() }}" alt="Monte Carlo Simulation Plot">
+                {% elif method == 'variance_covariance' %}
+                    <img src="{{ url_for('static', filename='var_covariance.png') }}?v={{ time.time() }}" alt="Variance-Covariance VaR Plot">
+                {% endif %}
+
+                <!-- Add explanation for the user -->
+        <div class="explanation" style="margin-top: 20px;">
+            <h4>What the Output Means:</h4>
+            <p>
+                The **Value at Risk (VaR)** is the maximum expected loss over a specified time period at the given confidence level. 
+                For example, a VaR of -2% at a 95% confidence level means that there is a 95% chance that your portfolio's loss will not exceed 2% over the given period.
+            </p>
+            <p>
+                The **Conditional Value at Risk (CVaR)**, also known as the expected shortfall, provides the average loss in cases where the loss exceeds the VaR threshold. 
+                This helps to better understand the potential losses in extreme scenarios.
+            </p>
+            <h4>Understanding the Plot:</h4>
+            <p>
+                The **X-axis** of the plot represents the date, showing the time period during which the portfolio returns were observed.
+                The **Y-axis** shows the portfolio's percentage return. A positive return indicates a gain, while a negative return indicates a loss.
+            </p>
+            <p>
+                The red dashed line represents the **VaR threshold**. Any point below this line indicates a loss that exceeds the calculated Value at Risk.
+            </p>
+            </div>
+        </div>
     </div>
 </body>
 </html>
